@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 # Remote library imports
-from flask import request, render_template, session, jsonify
+from flask import request, render_template, make_response, session, jsonify
 from flask_restful import Resource
-from models import User, Message
+from flask_cors import CORS
+from config import app, db, Api
 
-# Local imports
-from config import app, db, api
+from models import User, Message
+api = Api(app)
+CORS(app)
+app.secret_key = b'V\xe7N\xfb\xad\xe7R^\xc3\x13k\xf1r\xb3\xd45'
 # Requests
 class UserResource(Resource):
     """Handles user-related operations.
@@ -133,36 +136,42 @@ class MessageResource(Resource):
 
     def get(self, user_id):
         """Retrieve messages for a specific user."""
-        messages = Message.query.filter(
-            (Message.outgoing_user_id == user_id) | (Message.receiving_user_id == user_id)
-        ).all()
+        messages_sent = Message.query.filter_by(author_id=user_id).all()
+        messages_received = Message.query.filter_by(recipient_id=user_id).all()
 
-        messages_list = [message.to_dict() for message in messages]
+        messages_sent_list = [message.to_dict() for message in messages_sent]
+        messages_received_list = [message.to_dict() for message in messages_received]
 
-        return {"messages": messages_list}, 200
+        return {"messages_sent": messages_sent_list, "messages_received": messages_received_list}, 200
 
     def post(self, user_id):
         """Send a new message."""
         data = request.get_json()
 
-        if 'outgoing_user_id' not in data or 'receiving_user_id' not in data:
-            return {"message": "Both outgoing_user_id and receiving_user_id are required"}, 400
+    # Check if required fields are present in the request data
+        if 'author_id' not in data or 'recipient_id' not in data or 'content' not in data:
+            return {"message": "Both author_id, recipient_id, and content are required"}, 400
 
-        outgoing_user = User.query.get(data['outgoing_user_id'])
-        receiving_user = User.query.get(data['receiving_user_id'])
+    # Get user instances for the sender and receiver
+        author = User.query.get(data['author_id'])
+        recipient = User.query.get(data['recipient_id'])
 
-        if not outgoing_user or not receiving_user:
+    # Check if users exist
+        if not author or not recipient:
             return {"message": "Invalid user IDs"}, 404
 
+    # Create a new message instance
         new_message = Message(
-            content=data.get('content'),
-            outgoing_user_id=data['outgoing_user_id'],
-            receiving_user_id=data['receiving_user_id']
+            content=data['content'],
+            author_id=data['author_id'],
+            recipient_id=data['recipient_id']
         )
 
+    # Add the new message to the database
         db.session.add(new_message)
         db.session.commit()
 
+    # Return the new message details
         return new_message.to_dict(), 201
 
     def delete(self, user_id, message_id):
@@ -172,11 +181,11 @@ class MessageResource(Resource):
         if not message:
             return {"message": "Message not found"}, 404
 
-        if message.outgoing_user_id == user_id or message.receiving_user_id == user_id:
+        if message.author_id == user_id:
             db.session.delete(message)
             db.session.commit()
 
-            return {"message": f"Message with ID {message_id} has been deleted"}, 200
+            return {"message": "Message has been deleted"}, 200
         else:
             return {"message": "Unauthorized to delete this message"}, 403
 
