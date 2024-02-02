@@ -9,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 import secrets
 from dotenv import load_dotenv
+from flask_bcrypt import Bcrypt
 load_dotenv()
 
 # Local imports
@@ -29,10 +30,10 @@ load_dotenv()
 
 # Instantiate app, set attributes
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///app.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
-app.secret_key = secrets.token_hex(16)
+app.secret_key = b'V\xe7N\xfb\xad\xe7R^\xc3\x13k\xf1r\xb3\xd45'
 
 
 # Define metadata, instantiate db
