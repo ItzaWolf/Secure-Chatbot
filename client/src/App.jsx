@@ -1,33 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import HomePage from './Components/HomePage';
+import UserSignUp from './Components/UserSignUp';
+import UserLogin from './Components/UserLogin';
+import UserLogout from './Components/UserLogout';
+import UserDetailEdit from './Components/UserDetailEdit';
+import LandingPage from './Components/LandingPage';
 
 function App() {
+  const [user, setUser] = useState(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/check_session')
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          return null;
+        }
+      })
+      .then((userData) => {
+        if (userData && userData.username) {
+          setUser(userData);
+          setIsLoggedIn(true);
+        }
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error during check session:', error);
+        setIsLoggedIn(false);
+        setIsLoading(false);
+      });
+  }, []);
+
+  function handleNewUser(newUser) {
+    setUser(newUser);
+    setIsLoggedIn(true);
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUser(null);
+    console.log('User has been logged out!')
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>; // You can replace this with a loading spinner or any other loading indicator
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={<LandingPage isLoggedIn={isLoggedIn} handleNewUser={handleNewUser} />}
+        />
+        <Route path="/signup" element={<UserSignUp handleNewUser={handleNewUser} />} />
+        <Route path="/login" element={<UserLogin setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/logout" element={<UserLogout handleLogout={handleLogout} />} />
+        <Route path="/edituser" element={<UserDetailEdit setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/home" element={<HomePage />} />
+      </Routes>
+    </Router>
   )
 }
 
