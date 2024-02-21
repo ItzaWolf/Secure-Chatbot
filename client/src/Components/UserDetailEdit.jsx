@@ -91,13 +91,11 @@ function UserDetailEdit({ setIsLoggedIn }) {
 
   const handleDelete = async () => {
     if (!isConfirmed) {
-      // If not confirmed, show a confirmation dialog
       const userConfirmed = window.confirm('Are you sure you want to delete your profile? This action cannot be undone.');
       if (!userConfirmed) {
         return;
       }
 
-      // If confirmed, set the state
       setIsConfirmed(true);
       return;
     }
@@ -112,7 +110,7 @@ function UserDetailEdit({ setIsLoggedIn }) {
         setErrorMessage('');
         setUser(null);
         setIsLoggedIn(false);
-        navigate('/'); // Use navigate to navigate to the home page
+        navigate('/');
       } else {
         console.error('Failed to delete user.');
         setErrorMessage('Error deleting user. Please try again.');

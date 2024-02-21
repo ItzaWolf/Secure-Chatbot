@@ -1,6 +1,6 @@
 import React from 'react'
 
-function MsgChatbox() {
+function Navbar() {
   return (
     <div>
       
@@ -8,4 +8,4 @@ function MsgChatbox() {
   )
 }
 
-export default MsgChatbox
+export default Navbar
