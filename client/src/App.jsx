@@ -38,7 +38,6 @@ function App() {
 
   function handleNewUser(newUser) {
     setUser(newUser);
-    setIsLoggedIn(true);
   }
 
   const handleLogout = () => {
@@ -56,7 +55,10 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<LandingPage isLoggedIn={isLoggedIn} handleNewUser={handleNewUser} />}
+          element={
+              <LandingPage
+                  setIsLoggedIn={setIsLoggedIn}
+                  handleNewUser={handleNewUser} />}
         />
         <Route path="/signup" element={<UserSignUp handleNewUser={handleNewUser} />} />
         <Route path="/login" element={<UserLogin setIsLoggedIn={setIsLoggedIn} />} />

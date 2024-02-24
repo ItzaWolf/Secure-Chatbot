@@ -1,11 +1,13 @@
-import React from 'react'
+import React from 'react';
+import UserLogout from './UserLogout';
 
-function HomePage() {
+function HomePage({ handleLogout }) {
   return (
     <div>
-      HomePage
+      <h1>Welcome to the HomePage</h1>
+      <UserLogout/>
     </div>
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;
