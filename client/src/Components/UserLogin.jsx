@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function UserLogin({setIsLoggedIn}) {
+function UserLogin({ setIsLoggedIn }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate(); // Access the navigate function
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,6 +28,8 @@ function UserLogin({setIsLoggedIn}) {
           setIsLoggedIn(true);
           setConfirmationMessage('Login successful!');
           setErrorMessage('');
+          // Navigate to the homepage after successful login
+          navigate('/home');
         } else {
           setErrorMessage('User data is empty. Please try again.');
           setConfirmationMessage('');
